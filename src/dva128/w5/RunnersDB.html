@@ -170,20 +170,74 @@
         <!-- USER DATA START -->
         <title>HTML Terminal</title>
         <script>
+
+            function print_registration(registration) {
+                const width = 27
+                print(' ')
+                print('-'.repeat(width))
+                print('       REGISTRATION')
+                print('-'.repeat(width))
+                print(`NAME: ${registration.name}`)
+                print(`CITY: ${registration.city}`)
+                print(`NUMBER: ${registration.number}`)
+                print('-'.repeat(width))
+            }
+
+            function print_result(time) {
+                print(' ')
+                print('-----')
+                print(`NUMBER: ${time.number}`)
+                print(`TIME: ${time.time} sec (${Math.floor(time.time / 60)} min ${time.time % 60} sec)`)
+                for (const registration of registrations) {
+                    if (registration.number == time.number) {
+                        print(`NAME: ${registration.name}`)
+                        print(`CITY: ${registration.city}`)
+                        break
+                    }
+                }
+                print('-----')
+                print(' ')
+            }
             
             async function main() {
-                print('   Hello!   ')
-                print('------------')
-                for (let x = 0; x < 100; x++) {
-                    print(randint(20,25))
-                    await sleep(0.01)
+                print('RunnersDB')
+                print('---------')
+                print(' ')
+                print('1) Lookup registration')
+                print('2) List results (based on filter)')
+                print(' ')
+                const selection = await input('What to do? ')
+                print(' ')
+                switch (selection) {
+
+                    case '1':
+                        const number = int(await input(`Runner's number? `))
+                        for (const registration of registrations) {
+                            if (number === registration.number) {
+                                print_registration(registration)
+                                break
+                            }
+                        }
+                        break
+
+                    case '2':
+                        const time = int(await input('List participants faster than what (sec)? '))
+                        print(' ')
+                        const fastest = results.reduce((min, result) => {
+                            return result.time < min ? result.time : min
+                        }, Infinity)
+                        if (time <= fastest) {
+                            print(`ERROR: please select a value greater than the fastest time (${fastest} sec)`)
+                            return
+                        }
+                        for (const result of results) {
+                            if (result.time < time)
+                                print_result(result)
+                            await sleep(0.01)
+                        }
+                        break
+
                 }
-                print('------')
-                let a = int(await input('Type something> '))
-                print('You typed "' + a + '"')
-                await sleep(2)
-                clear()
-                print('Good bye!')
             }
             
         </script>
