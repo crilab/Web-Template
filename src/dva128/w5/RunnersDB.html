@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+            
+            html, body, input {
+                margin: 0;
+                padding: 0;
+                font-size: 13px;
+                font-family: monospace;
+                text-shadow: 1px 1px 0px black;
+                color: white;
+                border: none;
+                outline: none;
+                background-color: transparent;
+            }
+            html, body {
+                height: 100%;
+                background-image: linear-gradient(#004466, #002233);
+            }
+            body {
+                display: flex;
+                flex-direction: column;
+            }
+            div {
+                white-space: pre;
+            }
+            #rerun {
+                flex-grow: 0;
+                text-align: center;
+                background-image: linear-gradient(#666666, #333333);
+                border-bottom: 1px solid black;
+                box-shadow: 0px 0px 10px black;
+            }
+            #terminal {
+                padding: 10px;
+                flex-grow: 1;
+                overflow: auto;
+            }
+            
+            #rerun_button {
+                border: none;
+                border-left: 1px solid black;
+                border-right: 1px solid black;
+                margin: 0;
+                padding: 5px;
+                background-image: linear-gradient(#00DD00, #005500);
+                outline: none;
+                color: white;
+                font-family: "Lobster", sans-serif;
+                font-size: 13px;
+                text-shadow: 1px 1px 0px black;
+            }
+            #rerun_button:hover {
+                background-image: linear-gradient(#00FF00, #007700);
+                cursor: pointer;
+            }
+            #rerun_button:active {
+                background-image: linear-gradient(#007700, #00FF00);
+            }
+            #rerun_button:disabled {
+                color: LightGrey;
+                background-image: linear-gradient(#DDDDDD, #555555);
+            }
+            #rerun_button:hover:disabled {
+                background-image: linear-gradient(#FFFFFF, #777777);
+            }
+        </style>
+        
+        <script>
+            function clear() {
+                terminal.innerHTML = ''
+            }
+
+            function float(str) {
+                const reg1 = /^-?\d+$/
+                const reg2 = /^-?\d+\.\d+$/
+                
+                if (reg1.test(str) || reg2.test(str))
+                    return parseFloat(str)
+
+                throw `ValueError: could not convert string to float: '${str}'`
+            }
+
+            function int(str) {
+                const reg = /^-?\d+$/
+                
+                if (reg.test(str))
+                    return parseInt(str)
+                
+                throw `ValueError: invalid literal for int() with base 10: '${str}'`
+            }
+
+            function randint(min, max) {
+                return Math.floor(Math.random()*(max-min+1)) + min
+            }
+
+            function sleep(secs) {
+                return new Promise((resolve, reject) => {
+                    setTimeout(resolve, secs * 1000)
+                })
+            }
+            
+            function print(text, color=undefined) {
+                const div = document.createElement('div')
+                div.innerText = text
+                
+                if (color !== undefined)
+                    div.style.color = color
+                
+                terminal.appendChild(div)
+                terminal.scrollTo(0, terminal.scrollHeight)
+            }
+            
+            function input(prompt) {
+                return new Promise((resolve, reject) => {
+                    const div = document.createElement('div')
+                    const input = document.createElement('input')
+                    
+                    div.innerText = prompt
+                    // div.style.whiteSpace = 'nowrap'
+                    input.size = 1
+                    input.spellcheck = false
+                    
+                    div.appendChild(input)
+                    terminal.appendChild(div)
+                    
+                    function clickHandler() {
+                        input.focus()
+                        terminal.scrollTo(0, terminal.scrollHeight)
+                    }
+                    
+                    document.addEventListener('click', clickHandler)
+                    
+                    input.addEventListener('keydown', event => {
+                        if (event.key === 'Enter') {
+                            input.disabled = true
+                            document.removeEventListener('click', clickHandler)
+                            resolve(input.value)
+                        }
+                    })
+                    
+                    input.addEventListener('input', () => {
+                        input.size = Math.max(1, input.value.length)
+                    })
+                    
+                    clickHandler()
+                })
+            }
+            
+            window.onload = async () => {
+                rerun_button.disabled = true
+                
+                clear()
+                
+                try {
+                    await main()
+                } catch (e) {
+                    print(e, 'red')
+                }
+                
+                rerun_button.disabled = false
+            }
+        </script>
+        
+        <!-- USER DATA START -->
+        <title>HTML Terminal</title>
+        <script>
+            
+            async function main() {
+                print('   Hello!   ')
+                print('------------')
+                for (let x = 0; x < 100; x++) {
+                    print(randint(20,25))
+                    await sleep(0.01)
+                }
+                print('------')
+                let a = int(await input('Type something> '))
+                print('You typed "' + a + '"')
+                await sleep(2)
+                clear()
+                print('Good bye!')
+            }
+            
+        </script>
+        <!-- USER DATA END -->
+        
+    </head>
+    <body>
+        <div id="rerun"><button id="rerun_button" onclick="window.onload()" disabled>Kör igen!</button></div>
+        <div id="terminal"></div>
+        <script>
+            const rerun = document.getElementById('rerun')
+            const rerun_button = document.getElementById('rerun_button')
+            const terminal = document.getElementById('terminal')
+        </script>
+    </body>
+</html>
