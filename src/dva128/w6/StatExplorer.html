@@ -173,6 +173,70 @@
             
             async function main() {
                 const url = 'https://football-frenzy.s3.eu-north-1.amazonaws.com/api'
+
+                const get = async resource => {
+                    const response = await fetch(`${url}${resource}`)
+                    return await response.json()
+                }
+
+                const line = '-----------------------------------------------------'
+                print('STAT EXPLORER')
+                print('*************')
+                print(' ')
+                const season = await input('Enter year: ')
+                print(' ')
+                const seasons = (await get(``)).seasons
+
+                if (!seasons.includes(season)) {
+                    print(`ERROR: season not in range ${seasons[0]} - ${seasons[seasons.length-1]}`)
+                    return
+                }
+
+                const home_score = await input('Home score: ')
+                print(' ')
+                const away_score = await input('Away score: ')
+                print(' ')
+                print(line)
+
+                let games_total = 0
+                let games_matching = 0
+
+                const gamedays = (await get(`/${season}`)).gamedays
+                for (const gameday of gamedays) {
+                    const gameday_data = (await get(`/${season}/${gameday}`))
+                    for (const game of gameday_data.games) {
+                        games_total += 1
+                        const home = game.score.home
+                        const away = game.score.away
+
+                        const center = str => {
+                            const width = 15
+
+                            while (str.length < width)
+                                str = ` ${str} `
+
+                            if (width < str.length)
+                                str = str.slice(0, -1)
+
+                            return str
+                        }
+
+                        home.team = center(home.team.split(' ')[0])
+                        away.team = center(away.team.split(' ')[0])
+
+                        if (home_score == home.goals && away_score == away.goals) {
+                            games_matching += 1
+                            print(' ')
+                            print(`[${gameday_data.date}]  (${home.goals})${home.team} - ${away.team}(${away.goals})`)
+                        }
+                    }
+                }
+
+                print(' ')
+                print(line)
+                print(' ')
+                const games_matching_percentage = Math.round(10000 * games_matching / games_total) / 100
+                print(`MATCHES: ${games_matching} out of ${games_total} games (${games_matching_percentage}%)`)
             }
             
         </script>
