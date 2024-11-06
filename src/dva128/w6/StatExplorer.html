@@ -198,14 +198,10 @@
                 print(' ')
                 print(line)
 
-                let games_total = 0
-                let games_matching = 0
-
                 const gamedays = (await get(`/${season}`)).gamedays
                 for (const gameday of gamedays) {
                     const gameday_data = (await get(`/${season}/${gameday}`))
                     for (const game of gameday_data.games) {
-                        games_total += 1
                         const home = game.score.home
                         const away = game.score.away
 
@@ -225,9 +221,8 @@
                         away.team = center(away.team.split(' ')[0])
 
                         if (home_score == home.goals && away_score == away.goals) {
-                            games_matching += 1
                             print(' ')
-                            print(`[${gameday_data.date}]  (${home.goals})${home.team} - ${away.team}(${away.goals})`)
+                            print(`[${gameday}/${season}]  (${home.goals})${home.team} - ${away.team}(${away.goals})`)
                         }
                     }
                 }
@@ -235,8 +230,6 @@
                 print(' ')
                 print(line)
                 print(' ')
-                const games_matching_percentage = Math.round(10000 * games_matching / games_total) / 100
-                print(`MATCHES: ${games_matching} out of ${games_total} games (${games_matching_percentage}%)`)
             }
             
         </script>
