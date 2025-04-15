@@ -1,5 +1,5 @@
 {
-    "name": "Simlets",
+    "name": "Web Template",
     "postAttachCommand": "./start-dev.bash",
     "customizations": {
         "codespaces": {
